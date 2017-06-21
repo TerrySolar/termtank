@@ -7,7 +7,6 @@ import (
 type Tank struct {
 	*tl.Entity
 	canvas    tl.Canvas
-	level     tl.BaseLevel
 	direction int
 }
 
@@ -25,6 +24,11 @@ var (
 	canvasLeft   tl.Canvas
 	tankBodyCell tl.Cell
 )
+
+func (tank Tank) Draw(screen *tl.Screen) {
+
+	tank.Entity.Draw(screen)
+}
 
 func init() {
 
@@ -203,11 +207,24 @@ func init() {
 }
 
 // Initial a new tank
-func NewTank(level tl.BaseLevel) *Tank {
+func NewTank() *Tank {
 
 	tank := Tank{
 		Entity: tl.NewEntity(0, 0, 9, 9),
-		level:  level,
+		canvas: canvasUp,
+	}
+
+	TankUp(&tank)
+
+	return &tank
+
+}
+
+// Initial a tank with position
+func NewTankXY(x, y int) *Tank {
+
+	tank := Tank{
+		Entity: tl.NewEntity(x, y, 9, 9),
 		canvas: canvasUp,
 	}
 
