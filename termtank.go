@@ -31,19 +31,21 @@ func (p Player) Tick(event tl.Event) {
 
 		var bulletX, bulletY, bulletDirection int
 		bulletDirection = p.Tank.GetDirection()
+		cell := tl.Cell{Fg: tl.ColorRed, Bg: tl.ColorRed}
+
 		switch event.Key {
 
 		case tl.KeyArrowUp:
-			tank.TankUp(p.Tank)
+			tank.TankUp(p.Tank, cell)
 			p.SetPosition(p.preX, p.preY-1)
 		case tl.KeyArrowDown:
-			tank.TankDown(p.Tank)
+			tank.TankDown(p.Tank, cell)
 			p.SetPosition(p.preX, p.preY+1)
 		case tl.KeyArrowRight:
-			tank.TankRight(p.Tank)
+			tank.TankRight(p.Tank, cell)
 			p.SetPosition(p.preX+1, p.preY)
 		case tl.KeyArrowLeft:
-			tank.TankLeft(p.Tank)
+			tank.TankLeft(p.Tank, cell)
 			p.SetPosition(p.preX-1, p.preY)
 
 		case tl.KeySpace:
@@ -76,6 +78,8 @@ func (enemy Enemy) Collide(collision tl.Physical) {
 	if _, ok := collision.(tank.Bullet); ok {
 		enemy.level.RemoveEntity(enemy)
 
+	} else if _, ok := collision.(tank.Tank); ok {
+		enemy.SetPosition(enemy.preX, enemy.preY)
 	}
 
 }
@@ -108,13 +112,13 @@ func main() {
 
 	// Initial player tank
 	player := Player{
-		Tank:  tank.NewTankXY(120, 120),
+		Tank:  tank.NewTankXY(120, 120, tl.Cell{Bg: tl.ColorRed}),
 		level: level,
 	}
 	level.AddEntity(player)
 
 	enemy := Enemy{
-		Tank:  tank.NewTank(),
+		Tank:  tank.NewTank(tl.Cell{Bg: tl.ColorBlue}),
 		level: level,
 	}
 
@@ -124,7 +128,4 @@ func main() {
 	game.Screen().SetFps(120)
 	game.Start()
 
-	// retrieve screen size after start(),before start(),size = 0
-	sX, sY := game.Screen().Size()
-	player.Tank.SetPosition(int(sX/2), int(sY/2))
 }

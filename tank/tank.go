@@ -6,10 +6,10 @@ import (
 
 type Tank struct {
 	*tl.Entity
-	canvas    tl.Canvas
 	direction int
 }
 
+// Tank directions
 const (
 	UP    int = 1
 	DOWN  int = 2
@@ -17,28 +17,22 @@ const (
 	RIGHT int = 4
 )
 
-var (
-	canvasUp     tl.Canvas
-	canvasRight  tl.Canvas
-	canvasDown   tl.Canvas
-	canvasLeft   tl.Canvas
-	tankBodyCell tl.Cell
-)
+//var (
+//	canvasUp     tl.Canvas
+//	canvasRight  tl.Canvas
+//	canvasDown   tl.Canvas
+//	canvasLeft   tl.Canvas
+//	tankBodyCell tl.Cell
+//)
 
 func (tank Tank) Draw(screen *tl.Screen) {
 
 	tank.Entity.Draw(screen)
 }
 
-func init() {
+func TankUpCanvas(tankBodyCell tl.Cell) tl.Canvas {
 
-	tankBodyCell = tl.Cell{Fg: tl.ColorRed, Bg: tl.ColorRed}
-
-	// new blank canvas
-	canvasUp = tl.NewCanvas(9, 9)
-	canvasRight = tl.NewCanvas(9, 9)
-	canvasDown = tl.NewCanvas(9, 9)
-	canvasLeft = tl.NewCanvas(9, 9)
+	canvasUp := tl.NewCanvas(9, 9)
 
 	// Tank canvas up
 	canvasUp[4][0] = tankBodyCell
@@ -81,6 +75,13 @@ func init() {
 	canvasUp[5][4] = tankBodyCell
 	canvasUp[5][5] = tankBodyCell
 
+	return canvasUp
+}
+
+func TankDownCanvas(tankBodyCell tl.Cell) tl.Canvas {
+
+	canvasDown := tl.NewCanvas(9, 9)
+
 	// Tank canvas down
 	canvasDown[1][1] = tankBodyCell
 	canvasDown[1][2] = tankBodyCell
@@ -121,6 +122,13 @@ func init() {
 	canvasDown[3][4] = tankBodyCell
 	canvasDown[5][3] = tankBodyCell
 	canvasDown[5][4] = tankBodyCell
+
+	return canvasDown
+}
+
+func TankLeftCanvas(tankBodyCell tl.Cell) tl.Canvas {
+
+	canvasLeft := tl.NewCanvas(9, 9)
 
 	// Tank canvas left
 	canvasLeft[2][1] = tankBodyCell
@@ -163,6 +171,13 @@ func init() {
 	canvasLeft[4][5] = tankBodyCell
 	canvasLeft[5][5] = tankBodyCell
 
+	return canvasLeft
+}
+
+func TankRightCanvas(tankBodyCell tl.Cell) tl.Canvas {
+
+	canvasRight := tl.NewCanvas(9, 9)
+
 	// Tank canvas right
 	canvasRight[2][1] = tankBodyCell
 	canvasRight[3][1] = tankBodyCell
@@ -204,61 +219,72 @@ func init() {
 	canvasRight[3][5] = tankBodyCell
 	canvasRight[4][5] = tankBodyCell
 
+	return canvasRight
+}
+
+func init() {
+
+	//	tankBodyCell = tl.Cell{Fg: tl.ColorRed, Bg: tl.ColorRed}
+
+	// new blank canvas
+
 }
 
 // Initial a new tank
-func NewTank() *Tank {
+func NewTank(cell tl.Cell) *Tank {
 
 	tank := Tank{
 		Entity: tl.NewEntity(0, 0, 9, 9),
-		canvas: canvasUp,
 	}
 
-	TankUp(&tank)
+	TankUp(&tank, cell)
 
 	return &tank
 
 }
 
 // Initial a tank with position
-func NewTankXY(x, y int) *Tank {
+func NewTankXY(x, y int, cell tl.Cell) *Tank {
 
 	tank := Tank{
 		Entity: tl.NewEntity(x, y, 9, 9),
-		canvas: canvasUp,
 	}
 
-	TankUp(&tank)
+	TankUp(&tank, cell)
 
 	return &tank
 
 }
 
-func TankUp(tank *Tank) {
+func TankUp(tank *Tank, cell tl.Cell) {
 
 	// Refresh tank direction
-	tank.SetCanvas(&canvasUp)
+	canvas := TankUpCanvas(cell)
+	tank.SetCanvas(&canvas)
 	tank.direction = UP
 }
 
-func TankDown(tank *Tank) {
+func TankDown(tank *Tank, cell tl.Cell) {
 
 	// Refresh tank direction
-	tank.SetCanvas(&canvasDown)
+	canvas := TankDownCanvas(cell)
+	tank.SetCanvas(&canvas)
 	tank.direction = DOWN
 }
 
-func TankLeft(tank *Tank) {
+func TankLeft(tank *Tank, cell tl.Cell) {
 
 	// Refresh tank direction
-	tank.SetCanvas(&canvasLeft)
+	canvas := TankLeftCanvas(cell)
+	tank.SetCanvas(&canvas)
 	tank.direction = LEFT
 }
 
-func TankRight(tank *Tank) {
+func TankRight(tank *Tank, cell tl.Cell) {
 
 	// Refresh tank direction
-	tank.SetCanvas(&canvasRight)
+	canvas := TankRightCanvas(cell)
+	tank.SetCanvas(&canvas)
 	tank.direction = RIGHT
 }
 
