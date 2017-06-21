@@ -13,8 +13,16 @@ type Player struct {
 	level *tl.BaseLevel
 }
 
+type Enemy struct {
+	*tank.Tank
+	preX  int
+	preY  int
+	level *tl.BaseLevel
+}
+
 var (
 	player Player
+	enemy  Enemy
 )
 
 func (p Player) Tick(event tl.Event) {
@@ -64,6 +72,14 @@ func (p Player) Tick(event tl.Event) {
 
 }
 
+func (enemy Enemy) Collide(collision tl.Physical) {
+	if _, ok := collision.(tank.Bullet); ok {
+		enemy.level.RemoveEntity(enemy)
+
+	}
+
+}
+
 func (player Player) Draw(screen *tl.Screen) {
 
 	tX, tY := player.Position()
@@ -92,15 +108,23 @@ func main() {
 
 	// Initial player tank
 	player := Player{
+		Tank:  tank.NewTankXY(120, 120),
+		level: level,
+	}
+	level.AddEntity(player)
+
+	enemy := Enemy{
 		Tank:  tank.NewTank(),
 		level: level,
 	}
 
-	level.AddEntity(player)
-
+	level.AddEntity(enemy)
 	game.Screen().SetLevel(level)
 	game.Screen().EnablePixelMode()
 	game.Screen().SetFps(120)
 	game.Start()
 
+	// retrieve screen size after start(),before start(),size = 0
+	sX, sY := game.Screen().Size()
+	player.Tank.SetPosition(int(sX/2), int(sY/2))
 }
