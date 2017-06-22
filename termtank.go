@@ -203,10 +203,6 @@ func main() {
 	level.AddEntity(&enemy1)
 	level.AddEntity(&enemy)
 
-	instructText := tl.NewText(20, 10, "in", tl.ColorRed, tl.RgbTo256Color(0, 200, 0))
-	game.Screen().AddEntity(instructText)
-	instructText.SetText("aaaaaaaaaa")
-
 	game.Screen().SetLevel(level)
 	game.Screen().EnablePixelMode()
 	game.Screen().SetFps(120)
