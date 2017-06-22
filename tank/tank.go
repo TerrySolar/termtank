@@ -25,7 +25,7 @@ const (
 //	tankBodyCell tl.Cell
 //)
 
-func (tank Tank) Draw(screen *tl.Screen) {
+func (tank *Tank) Draw(screen *tl.Screen) {
 
 	tank.Entity.Draw(screen)
 }

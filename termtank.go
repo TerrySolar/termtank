@@ -1,9 +1,19 @@
 package main
 
 import (
+	"math/rand"
 	"termtank/tank"
+	"time"
 
 	tl "github.com/JoelOtter/termloop"
+)
+
+// Tank directions
+const (
+	UP    int = 1
+	DOWN  int = 2
+	LEFT  int = 3
+	RIGHT int = 4
 )
 
 type Player struct {
@@ -15,17 +25,19 @@ type Player struct {
 
 type Enemy struct {
 	*tank.Tank
-	preX  int
-	preY  int
-	level *tl.BaseLevel
+	preX   int
+	preY   int
+	level  *tl.BaseLevel
+	status int // 1:normal 0:dead
 }
 
 var (
-	player Player
-	enemy  Enemy
+	player    Player
+	enemy     Enemy
+	countTime float64
 )
 
-func (p Player) Tick(event tl.Event) {
+func (p *Player) Tick(event tl.Event) {
 	if event.Type == tl.EventKey {
 		p.preX, p.preY = p.Position()
 
@@ -74,8 +86,13 @@ func (p Player) Tick(event tl.Event) {
 
 }
 
-func (enemy Enemy) Collide(collision tl.Physical) {
+func (enemy *Enemy) Collide(collision tl.Physical) {
+
 	if _, ok := collision.(tank.Bullet); ok {
+
+		// set dead status
+		enemy.status = 0
+		// remove from screen
 		enemy.level.RemoveEntity(enemy)
 
 	} else if _, ok := collision.(tank.Tank); ok {
@@ -84,7 +101,61 @@ func (enemy Enemy) Collide(collision tl.Physical) {
 
 }
 
-func (player Player) Draw(screen *tl.Screen) {
+func (enemy *Enemy) Draw(screen *tl.Screen) {
+
+	countTime += screen.TimeDelta()
+
+	enemy.preX, enemy.preY = enemy.Position()
+	rand.Seed(time.Now().UnixNano())
+
+	step := 3
+
+	if countTime > 0.8 {
+
+		direction := rand.Intn(4)
+		cell := tl.Cell{Bg: tl.ColorBlue}
+
+		switch direction + 1 {
+
+		case UP:
+			tank.TankUp(enemy.Tank, cell)
+			enemy.SetPosition(enemy.preX, enemy.preY-step)
+		case DOWN:
+			tank.TankDown(enemy.Tank, cell)
+			enemy.SetPosition(enemy.preX, enemy.preY+step)
+		case LEFT:
+			tank.TankLeft(enemy.Tank, cell)
+			enemy.SetPosition(enemy.preX-step, enemy.preY)
+		case RIGHT:
+			tank.TankRight(enemy.Tank, cell)
+			enemy.SetPosition(enemy.preX+step, enemy.preY)
+		}
+
+		// reset countTime
+		countTime = 0.0
+
+		tX, tY := enemy.Position()
+		sX, sY := screen.Size()
+
+		if tX < 0 {
+			enemy.SetPosition(tX+step, tY)
+		}
+		if tX > sX-9 {
+			enemy.SetPosition(tX-step, tY)
+		}
+		if tY < 0 {
+			enemy.SetPosition(tX, tY+step)
+		}
+		if tY > sY-9 {
+			enemy.SetPosition(tX, tY-step)
+		}
+
+	}
+	enemy.Entity.Draw(screen)
+
+}
+
+func (player *Player) Draw(screen *tl.Screen) {
 
 	tX, tY := player.Position()
 	sX, sY := screen.Size()
@@ -115,14 +186,27 @@ func main() {
 		Tank:  tank.NewTankXY(120, 120, tl.Cell{Bg: tl.ColorRed}),
 		level: level,
 	}
-	level.AddEntity(player)
+	level.AddEntity(&player)
 
 	enemy := Enemy{
-		Tank:  tank.NewTank(tl.Cell{Bg: tl.ColorBlue}),
-		level: level,
+		Tank:   tank.NewTankXY(120, 60, tl.Cell{Bg: tl.ColorBlue}),
+		level:  level,
+		status: 1,
 	}
 
-	level.AddEntity(enemy)
+	enemy1 := Enemy{
+		Tank:   tank.NewTankXY(60, 60, tl.Cell{Bg: tl.ColorBlue}),
+		level:  level,
+		status: 1,
+	}
+
+	level.AddEntity(&enemy1)
+	level.AddEntity(&enemy)
+
+	instructText := tl.NewText(20, 10, "in", tl.ColorRed, tl.RgbTo256Color(0, 200, 0))
+	game.Screen().AddEntity(instructText)
+	instructText.SetText("aaaaaaaaaa")
+
 	game.Screen().SetLevel(level)
 	game.Screen().EnablePixelMode()
 	game.Screen().SetFps(120)
