@@ -4,7 +4,7 @@
 Termtank use this engin
 [JoelOtter/termloop](https://github.com/JoelOtter/termloop)
 
-```
+```go
 // Get this awesome project
 go get -u github.com/JoelOtter/termloop
 
@@ -12,7 +12,7 @@ go get -u github.com/JoelOtter/termloop
 go run termtank.go
 ```
 
-![show case](http://terrylovesolar.com/tank.gif)
+![show case](https://github.com/TerrySolar/termtank/raw/master/tank.gif)
 
 - ## About
 
